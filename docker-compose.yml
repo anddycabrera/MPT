@@ -1,0 +1,43 @@
+version: "3.8"
+services:    
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      args:        
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+        SERPAPI_API_KEY: ${SERPAPI_API_KEY}
+        BROKER_URL: ${BROKER_URL}
+    volumes:
+      - ./backend:/app
+    command: sh -c "pip3 install --upgrade pip && pip3 install -r requirements.txt && export PYTHONPATH=/app && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "8000:8000"
+
+  app:
+    container_name: react-app
+    build:
+      context: ./frontend
+    ports:
+      - 8083:80
+
+  triton:
+    container_name: triton-server
+    build:
+      context: ./models
+    image: nvcr.io/nvidia/tritonserver:23.08-py3
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - ./model_repository:/models
+    command: tritonserver --model-store=/models
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    shm_size: 8g
+    ulimits:
+      memlock: -1
+      stack: 67108864

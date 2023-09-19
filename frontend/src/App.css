@@ -1,0 +1,53 @@
+.card-header.bg-primary {
+  background-color: #003366 !important;
+  color: #FFFFFF;
+}
+.chat-body {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+}
+.chat-history {
+  max-height: 500px;
+  flex: 1;
+  overflow-y: auto;
+  border-bottom: 1px solid #e1e1e1;
+  padding-bottom: 15px;
+}
+.chat-message.user {
+  background-color: #E6F3FF;
+  margin-left: auto;
+  max-width: 70%;
+  border-radius: 10px;
+  font-size: 18px;
+  color: #003366;
+}
+.chat-message.api {
+  position: relative; /* Added to position the Save button */
+  background-color: #F7F7F7;
+  margin-right: auto;
+  max-width: 70%;
+  border-radius: 10px;
+  font-size: 18px;
+  color: #333333;
+}
+.chat-message {
+  white-space: pre-wrap;
+  margin: 10px 0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #333;
+}
+.chat-input input {
+  width: 80%;
+  border:1px solid #003366
+}
+.chat-input .btn-success {
+  background-color: #003366;
+  border-color: #002244;  
+}
+
+.fas.fa-user-circle, .fas.fa-robot {
+  font-size: 1.2em;
+  vertical-align: middle; 
+}
