@@ -28,12 +28,9 @@ services:
       context: ./models
       dockerfile: Dockerfile
     command: /bin/bash -c "tritonserver --model-store=./model_repository"
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: all
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - "8000:8000"
       - "8001:8001"
