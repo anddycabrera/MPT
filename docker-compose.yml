@@ -27,7 +27,7 @@ services:
     build:
       context: ./models
       dockerfile: Dockerfile
-    command: /bin/bash -c "tritonserver --model-store=./model_repository"
+    command: /bin/bash -c "tritonserver --model-store ./model_repository"
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=all
@@ -42,6 +42,12 @@ services:
     ulimits:
       memlock: -1
       stack: 67108864
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: ["gpu"]
     stdin_open: true
     tty: true
     restart: "no"
