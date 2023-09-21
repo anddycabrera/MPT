@@ -27,7 +27,7 @@ services:
     build:
       context: ./models
       dockerfile: Dockerfile
-    command: /bin/bash -c "chmod +x ./gen_vllm_env.sh && ./gen_vllm_env.sh && tritonserver --model-store=/models/model_repository"
+    command: /bin/bash -c "tritonserver --model-store=./model_repository"
     deploy:
       resources:
         reservations:
@@ -39,7 +39,7 @@ services:
       - "8001:8001"
       - "8002:8002"
     volumes:
-      - .:/work
+      - ./models:/work
     working_dir: /work
     shm_size: 8G
     ulimits:
