@@ -31,7 +31,7 @@ function LLM() {
         try {
             setChatHistory(prevChatHistory => [...prevChatHistory, { message: userInput, type: 'user' }]);
             
-            apiClient('openai/chat-ai', 'POST',
+            apiClient('llm/mpt-7b-chat', 'POST',
             JSON.stringify({
                 question: userInput,
                 session_id: sessionId

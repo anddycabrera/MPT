@@ -1,27 +1,27 @@
 version: "3.8"
 services:    
-  # backend:
-  #   container_name: backend
-  #   build:
-  #     context: ./backend
-  #     args:        
-  #       OPENAI_API_KEY: ${OPENAI_API_KEY}
-  #       SERPAPI_API_KEY: ${SERPAPI_API_KEY}
-  #       BROKER_URL: ${BROKER_URL}
-  #   volumes:
-  #     - ./backend:/app
-  #   command: sh -c "pip3 install --upgrade pip && pip3 install -r requirements.txt && export PYTHONPATH=/app && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
-  #   environment:
-  #     - PYTHONPATH=/app
-  #   ports:
-  #     - "8003:8003"
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      args:        
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+        SERPAPI_API_KEY: ${SERPAPI_API_KEY}
+        BROKER_URL: ${BROKER_URL}
+    volumes:
+      - ./backend:/app
+    command: sh -c "pip3 install --upgrade pip && pip3 install -r requirements.txt && export PYTHONPATH=/app && uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload"
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "8003:8003"
 
-  # app:
-  #   container_name: react-app
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - 8080:80
+  app:
+    container_name: react-app
+    build:
+      context: ./frontend
+    ports:
+      - 8080:80
 
   tritonserver:
     build:
