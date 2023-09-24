@@ -17,4 +17,7 @@ def sync_model_streaming_chat(prompt_text, model_name="vllm", sampling_parameter
     results = asyncio.run(model_client(FLAGS, prompt_text, model_name, sampling_parameters))
     return results
 
-gr.ChatInterface(sync_model_streaming_chat).queue().launch(port=7860)
+# Define the interface with the server_port parameter set.
+iface = gr.ChatInterface(fn=sync_model_streaming_chat, server_port=7860)
+iface.launch()
+
