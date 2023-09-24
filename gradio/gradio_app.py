@@ -18,6 +18,6 @@ def sync_model_streaming_chat(prompt_text, model_name="vllm", sampling_parameter
     return results
 
 # Define the interface with the server_port parameter set.
-iface = gr.ChatInterface(fn=sync_model_streaming_chat, server_port=7860)
+iface = gr.ChatInterface(fn=sync_model_streaming_chat)
 iface.launch()
 
