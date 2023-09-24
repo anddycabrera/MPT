@@ -56,7 +56,8 @@ services:
     tty: true
 
   gradio-app:
-    build: .
+    build:
+      context: ./gradio
     ports:
       - "7860:7860"
     depends_on:
