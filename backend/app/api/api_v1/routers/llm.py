@@ -28,7 +28,6 @@ async def llmchat(
             streaming_mode = True
 
         sampling_parameters = {
-            "max_new_tokens": "2048",
             "do_sample": "True",
             "temperature": "0.1",
             "top_p": "0.15",
