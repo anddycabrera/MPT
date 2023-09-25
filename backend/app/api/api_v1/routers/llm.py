@@ -26,8 +26,19 @@ async def llmchat(
             offset = 0
             iterations = 1
             streaming_mode = True
+
+        sampling_parameters = {
+            "max_new_tokens": "2048",
+            "do_sample": "True",
+            "num_return_sequences": "1",
+            "eos_token_id": "tokenizer.eos_token_id",
+            "pad_token_id": "tokenizer.eos_token_id",
+            "temperature": "0.1",
+            "top_p": "0.15",
+            "repetition_penalty": "1.2"
+        }
         
-        generator = model_client(FLAGS, chat_request.question)
+        generator = model_client(FLAGS, chat_request.question, sampling_parameters=sampling_parameters)
         return StreamingResponse(generator, media_type="text/event-stream")
     
     except Exception as e:
