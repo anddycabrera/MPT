@@ -12,7 +12,7 @@ class UserData:
 
 def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     inputs = []
-    prompt_data = np.array([prompt.encode("utf-8")], dtype=np.object_)
+    prompt_data = prompt.encode("utf-8")
     try:
         inputs.append(grpcclient.InferInput("PROMPT", [1], "STRING"))
         inputs[-1].set_data_from_numpy(prompt_data)
