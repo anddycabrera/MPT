@@ -42,7 +42,7 @@ model_transaction_policy {
 input [
   {
     name: "PROMPT"
-    data_type: TYPE_BYTES
+    data_type: TYPE_STRING
     dims: [ 1 ]
   },
   {
@@ -55,7 +55,7 @@ input [
 output [
   {
     name: "TEXT"
-    data_type: TYPE_BYTES
+    data_type: TYPE_STRING
     dims: [ -1 ]
   }
 ]

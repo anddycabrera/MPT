@@ -14,7 +14,7 @@ def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     inputs = []
     prompt_data = np.array([prompt.encode("utf-8")], dtype=np.object_)
     try:
-        inputs.append(grpcclient.InferInput("PROMPT", [1], "BYTES"))
+        inputs.append(grpcclient.InferInput("PROMPT", [1], "STRING"))
         inputs[-1].set_data_from_numpy(prompt_data)
     except Exception as e:
         print(f"Encountered an error {e}")
