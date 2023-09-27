@@ -33,7 +33,7 @@ async def llmchat(
             "top_p": "0.15",
             "frequency_penalty": "1.2",
             "max_tokens": "2048",
-            "stop": ["<|endoftext|>"]
+            "stop_token_ids": "0"
 
         }
         
