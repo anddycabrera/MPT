@@ -55,12 +55,12 @@ services:
     stdin_open: true
     tty: true
 
-  gradio-app:
-    build:
-      context: ./gradio
-    ports:
-      - "7860:7860"
-    environment:
-      - NO_PROXY=localhost
+  # gradio-app:
+  #   build:
+  #     context: ./gradio
+  #   ports:
+  #     - "7860:7860"
+  #   environment:
+  #     - NO_PROXY=localhost
     # depends_on:
     #   - backend
