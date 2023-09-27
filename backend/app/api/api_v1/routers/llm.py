@@ -32,10 +32,8 @@ async def llmchat(
             "top_p": "0.15"
 
         }
-
-        generator = model_client(host="tritonserver", port=8001, prompt=chat_request.question, n=1, stream=True)
         
-        #generator = model_client(FLAGS, chat_request.question, sampling_parameters=sampling_parameters)
+        generator = model_client(FLAGS, chat_request.question, sampling_parameters=sampling_parameters)
         return StreamingResponse(generator, media_type="text/event-stream")
     
     except Exception as e:
