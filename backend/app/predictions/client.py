@@ -72,12 +72,20 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    
-                    output = result.as_numpy("TEXT")
-                    for i in output:
-                        clean_byte_string = bytes(filter(lambda x: 32 <= x <= 126, i))
-                        print(repr(clean_byte_string))
-                        yield clean_byte_string.decode("utf-8")
+                    output_array = result.as_numpy("TEXT")
+                    for output_bytes in output_array:
+                        # Decoding the bytes to string
+                        output_str = output_bytes.decode("utf-8")
+                        
+                        # Removing prompt from the output
+                        output_without_prompt = output_str.replace(prompt_text, '', 1)
+                        
+                        # Printing the cleaned output
+                        print(repr(output_without_prompt))
+
+                        # Yielding the cleaned output
+                        yield output_without_prompt
+
 
         except InferenceServerException as error:
             print(error)
