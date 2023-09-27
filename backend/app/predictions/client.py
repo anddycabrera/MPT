@@ -72,7 +72,7 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    output = result["TEXT"]#.as_numpy("TEXT")
+                    output = result.as_list("TEXT")#.as_numpy("TEXT")
                     for i in output:
                         yield i.decode("utf-8")
 
