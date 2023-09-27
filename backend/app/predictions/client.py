@@ -41,8 +41,6 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
     stream = FLAGS.streaming_mode
     prompts = [prompt_text]
 
-    results_dict = {}
-
     async with grpcclient.InferenceServerClient(
         url=FLAGS.url, verbose=FLAGS.verbose
     ) as triton_client:
@@ -52,7 +50,6 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 for iter in range(FLAGS.iterations):
                     for i, prompt in enumerate(prompts):
                         prompt_id = FLAGS.offset + (len(prompts) * iter) + i
-                        results_dict[str(prompt_id)] = []
                         yield create_request(
                             prompt, stream, prompt_id, sampling_parameters, model_name
                         )
