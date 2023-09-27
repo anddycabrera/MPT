@@ -77,14 +77,17 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                         # Decoding the bytes to string
                         output_str = output_bytes.decode("utf-8")
                         
-                        # Removing prompt from the output
-                        output_without_prompt = output_str.replace(prompt_text, '', 1)
+                        # Removing prompt and unwanted characters from the output
+                        unwanted_strings = [prompt_text, "b''\\n"]
+                        output_cleaned = output_str
+                        for unwanted in unwanted_strings:
+                            output_cleaned = output_cleaned.replace(unwanted, '', 1)
                         
                         # Printing the cleaned output
-                        print(repr(output_without_prompt))
+                        print(repr(output_cleaned))
 
                         # Yielding the cleaned output
-                        yield output_without_prompt
+                        yield output_cleaned
 
 
         except InferenceServerException as error:
