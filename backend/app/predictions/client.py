@@ -1,4 +1,3 @@
-import json
 import queue
 
 import numpy as np
@@ -67,16 +66,14 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 stream_timeout=FLAGS.stream_timeout,
             )
             # Read response from the stream
-            async for response in response_iterator.iter_lines(chunk_size=8192,
-                                     decode_unicode=False,
-                                     delimiter=b"\0"):
+            async for response in response_iterator:
                 result, error = response
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
                     output = result.as_numpy("TEXT")
                     for i in output:                        
-                        yield json.loads(i.decode("utf-8"))
+                        results_dict[result.get_response().id].append(i)
 
         except InferenceServerException as error:
             print(error)
