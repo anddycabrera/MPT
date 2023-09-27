@@ -67,6 +67,8 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 stream_timeout=FLAGS.stream_timeout,
             )
             # Read response from the stream
+            import re
+
             async for response in response_iterator:
                 result, error = response
                 if error:
@@ -75,19 +77,18 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     output_array = result.as_numpy("TEXT")
                     for output_bytes in output_array:
                         # Decoding the bytes to string
-                        output_str = output_bytes.decode("utf-8")
-                        
-                        # Removing prompt and unwanted characters from the output
-                        unwanted_strings = [prompt_text, "b''\\n"]
-                        output_cleaned = output_str
-                        for unwanted in unwanted_strings:
-                            output_cleaned = output_cleaned.replace(unwanted, '', 1)
-                        
-                        # Printing the cleaned output
-                        print(repr(output_cleaned))
+                        output_str = output_bytes.decode("utf-8", errors='ignore')
 
-                        # Yielding the cleaned output
-                        yield output_cleaned
+                        # Use regular expression to find all printable characters
+                        matches = re.findall(r"[ -~]+", output_str)
+
+                        if matches:
+                            # Taking the last match, which should be the generated text
+                            output_cleaned = matches[-1]
+
+                            print(repr(output_cleaned))
+                            yield output_cleaned
+
 
 
         except InferenceServerException as error:
