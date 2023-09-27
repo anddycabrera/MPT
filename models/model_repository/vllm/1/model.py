@@ -115,9 +115,8 @@ class TritonPythonModel:
         response.
         """
         #prompt = vllm_output.prompt
-        text_outputs = [
-            output.text for output in vllm_output.outputs
-        ]
+        text_outputs = vllm_output.outputs
+        
         triton_output_tensor = pb_utils.Tensor(
             "TEXT", np.asarray(text_outputs, dtype=self.output_dtype)
         )
