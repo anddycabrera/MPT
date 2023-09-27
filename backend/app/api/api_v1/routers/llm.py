@@ -29,13 +29,11 @@ async def llmchat(
 
         sampling_parameters = {
             "n": "1",
-            "do_sample": "True",
             "temperature": "0.1",
             "top_p": "0.15",
             "frequency_penalty": "1.2",
             "max_tokens": "2048",
             "stop": "<|endoftext|>"
-
 
         }
         
