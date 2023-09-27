@@ -1,5 +1,5 @@
-import json
 import queue
+
 import numpy as np
 import tritonclient.grpc.aio as grpcclient
 from tritonclient.utils import *
@@ -12,7 +12,7 @@ class UserData:
 
 def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     inputs = []
-    prompt_data = np.array([prompt.encode("utf-8")], dtype=bytes)
+    prompt_data = np.array([prompt.encode("utf-8")], dtype=np.object_)
     try:
         inputs.append(grpcclient.InferInput("PROMPT", [1], "BYTES"))
         inputs[-1].set_data_from_numpy(prompt_data)
@@ -37,7 +37,7 @@ def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     }
 
 
-async def model_client(FLAGS, prompt_text, model_name="vllm", sampling_parameters={"temperature": "0.1", "top_p": "0.15"}):
+async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_parameters = {"temperature": "0.1", "top_p": "0.15"}):
     stream = FLAGS.streaming_mode
     prompts = [prompt_text]
 
@@ -71,16 +71,10 @@ async def model_client(FLAGS, prompt_text, model_name="vllm", sampling_parameter
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    output_bytes = result.as_numpy("TEXT")
-                    for output_bytes_item in output_bytes:
-                        # Convert bytes to string
-                        output_str = output_bytes_item.decode("utf-8", errors="ignore")
-
-                        # Print the response
-                        print(output_str)
-
-                        # You can yield the response here if needed
-                        yield output_str
+                    output = result.as_numpy("TEXT")
+                    for i in output:
+                        print(i.decode("utf-8").decode("utf-8"))
+                        yield i.decode("utf-8").decode("utf-8")
 
         except InferenceServerException as error:
             print(error)
