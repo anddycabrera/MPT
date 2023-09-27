@@ -1,80 +1,70 @@
-import queue
+# Save this as my_module.py
 
-import numpy as np
-import tritonclient.grpc.aio as grpcclient
-from tritonclient.utils import *
+import argparse
+import json
+import requests
+from typing import Iterable, List
+
+def clear_line(n: int = 1) -> None:
+    LINE_UP = '\033[1A'
+    LINE_CLEAR = '\x1b[2K'
+    for _ in range(n):
+        print(LINE_UP, end=LINE_CLEAR, flush=True)
 
 
-class UserData:
-    def __init__(self):
-        self._completed_requests = queue.Queue()
-
-
-def create_request(prompt, stream, request_id, sampling_parameters, model_name):
-    inputs = []
-    prompt_data = np.array([prompt.encode("utf-8")], dtype=np.object_)
-    try:
-        inputs.append(grpcclient.InferInput("PROMPT", [1], "BYTES"))
-        inputs[-1].set_data_from_numpy(prompt_data)
-    except Exception as e:
-        print(f"Encountered an error {e}")
-
-    stream_data = np.array([stream], dtype=bool)
-    inputs.append(grpcclient.InferInput("STREAM", [1], "BOOL"))
-    inputs[-1].set_data_from_numpy(stream_data)
-
-    # Add requested outputs
-    outputs = []
-    outputs.append(grpcclient.InferRequestedOutput("TEXT"))
-
-    # Issue the asynchronous sequence inference.
-    return {
-        "model_name": model_name,
-        "inputs": inputs,
-        "outputs": outputs,
-        "request_id": str(request_id),
-        "parameters": sampling_parameters,
+def post_http_request(prompt: str,
+                      api_url: str,
+                      n: int = 1,
+                      stream: bool = False) -> requests.Response:
+    headers = {"User-Agent": "Test Client"}
+    pload = {
+        "prompt": prompt,
+        "n": n,
+        "use_beam_search": True,
+        "temperature": 0.0,
+        "max_tokens": 16,
+        "stream": stream,
     }
+    response = requests.post(api_url, headers=headers, json=pload, stream=True)
+    return response
 
 
-async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_parameters = {"temperature": "0.1", "top_p": "0.15"}):
-    stream = FLAGS.streaming_mode
-    prompts = [prompt_text]
+def get_streaming_response(response: requests.Response) -> Iterable[List[str]]:
+    for chunk in response.iter_lines(chunk_size=8192,
+                                     decode_unicode=False,
+                                     delimiter=b"\0"):
+        if chunk:
+            data = json.loads(chunk.decode("utf-8"))
+            output = data["text"]
+            yield output
 
-    results_dict = {}
 
-    async with grpcclient.InferenceServerClient(
-        url=FLAGS.url, verbose=FLAGS.verbose
-    ) as triton_client:
-        # Request iterator that yields the next request
-        async def async_request_iterator():
-            try:
-                for iter in range(FLAGS.iterations):
-                    for i, prompt in enumerate(prompts):
-                        prompt_id = FLAGS.offset + (len(prompts) * iter) + i
-                        results_dict[str(prompt_id)] = []
-                        yield create_request(
-                            prompt, stream, prompt_id, sampling_parameters, model_name
-                        )
-            except Exception as error:
-                print(f"caught error in request iterator:  {error}")
+def get_response(response: requests.Response) -> List[str]:
+    data = json.loads(response.content)
+    output = data["text"]
+    return output
 
-        try:
-            # Start streaming
-            response_iterator = triton_client.stream_infer(
-                inputs_iterator=async_request_iterator(),
-                stream_timeout=FLAGS.stream_timeout,
-            )
-            # Read response from the stream
-            async for response in response_iterator:
-                result, error = response
-                if error:
-                    print(f"Encountered error while processing: {error}")
-                else:
-                    output = result.as_numpy("TEXT")
-                    for i in output:
-                        print(i.decode("utf-8").decode("utf-8"))
-                        yield i.decode("utf-8").decode("utf-8")
+def model_client(
+    host: str = "localhost", 
+    port: int = 8000, 
+    n: int = 4, 
+    prompt: str = "San Francisco is a", 
+    stream: bool = False
+):
+    api_url = f"http://{host}:{port}/generate"
 
-        except InferenceServerException as error:
-            print(error)
+    print(f"Prompt: {prompt!r}\n", flush=True)
+    response = post_http_request(prompt, api_url, n, stream)
+
+    if stream:
+        num_printed_lines = 0
+        for h in get_streaming_response(response):
+            clear_line(num_printed_lines)
+            num_printed_lines = 0
+            for i, line in enumerate(h):
+                num_printed_lines += 1
+                print(f"Beam candidate {i}: {line!r}", flush=True)
+    else:
+        output = get_response(response)
+        for i, line in enumerate(output):
+            print(f"Beam candidate {i}: {line!r}", flush=True)
