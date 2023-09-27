@@ -15,8 +15,8 @@ services:
       - PYTHONPATH=/app
     ports:
       - "8003:8003"
-    # depends_on:
-    #   - tritonserver
+    depends_on:
+      - tritonserver
 
   app:
     container_name: react-app
@@ -24,8 +24,8 @@ services:
       context: ./frontend
     ports:
       - 8080:80
-    # depends_on:
-    #   - gradio-app
+    depends_on:
+      - tritonserver
 
   tritonserver:
     build:
@@ -42,7 +42,7 @@ services:
     volumes:
       - ./models:/work
     working_dir: /work
-    #shm_size: 8G
+    shm_size: 8G
     ulimits:
       memlock: -1
       stack: 67108864
