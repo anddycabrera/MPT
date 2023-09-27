@@ -71,10 +71,10 @@ async def model_client(FLAGS, prompt_text, model_name="vllm", sampling_parameter
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    output_array = result.as_numpy("TEXT")
-                    for output_bytes in output_array:
-                        # Decoding the bytes to string
-                        output_str = output_bytes.decode("utf-8", errors="ignore")
+                    output_bytes = result.as_numpy("TEXT")
+                    for output_bytes_item in output_bytes:
+                        # Convert bytes to string
+                        output_str = output_bytes_item.decode("utf-8", errors="ignore")
 
                         # Print the response
                         print(output_str)
