@@ -72,12 +72,12 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    print("Attributes and methods of 'result':", dir(result))
-                    print("Complete response message:", result.get_response())
+                    
                     output = result.as_numpy("TEXT")
                     for i in output:
-                        #print(repr(i))
-                        yield i#.decode("utf-8")
+                        clean_byte_string = bytes(filter(lambda x: 32 <= x <= 126, i))
+                        print(repr(clean_byte_string))
+                        yield clean_byte_string.decode("utf-8")
 
         except InferenceServerException as error:
             print(error)
