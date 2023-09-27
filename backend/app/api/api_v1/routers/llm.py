@@ -28,10 +28,15 @@ async def llmchat(
             streaming_mode = True
 
         sampling_parameters = {
+            "n": "1",
             "do_sample": "True",
             "temperature": "0.1",
             "top_p": "0.15",
-            "repetition_penalty": "1.2"
+            "frequency_penalty": "1.2",
+            "max_tokens": "2048",
+            "stop": "<|endoftext|>"
+
+
         }
         
         generator = model_client(FLAGS, chat_request.question, sampling_parameters=sampling_parameters)

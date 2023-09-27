@@ -37,7 +37,7 @@ def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     }
 
 
-async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_parameters = {"temperature": "0.1", "top_p": "0.95"}):
+async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_parameters = {"temperature": "0.1", "top_p": "0.15"}):
     stream = FLAGS.streaming_mode
     prompts = [prompt_text]
 
@@ -72,7 +72,7 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     print(f"Encountered error while processing: {error}")
                 else:
                     output = result.as_numpy("TEXT")
-                    for i in output:
+                    for i in output.split(b"\0"):
                         yield i.decode("utf-8")
 
         except InferenceServerException as error:
