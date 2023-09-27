@@ -32,8 +32,7 @@ async def llmchat(
             "temperature": "0.1",
             "top_p": "0.15",
             "frequency_penalty": "1.2",
-            "max_tokens": "2048",
-            "stop_token_ids": [0]
+            "max_tokens": "2048"
 
         }
         
