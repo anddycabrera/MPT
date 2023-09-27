@@ -70,7 +70,12 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 else:
                     output = result.as_numpy("TEXT")
                     for i in output:
-                        yield i.decode("utf-8")
+                        # Decoding the output and splitting at "\nb'"
+                        parts = i.decode("utf-8").split("\nb'", 1)
+                        
+                        # Checking if there are parts after "\nb'"
+                        if len(parts) > 1:
+                            yield parts[1]
 
         except InferenceServerException as error:
             print(error)
