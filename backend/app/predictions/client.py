@@ -66,17 +66,19 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 stream_timeout=FLAGS.stream_timeout,
             )
             # Read response from the stream
+            buffer = b""
             async for response in response_iterator:
                 result, error = response
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
                     output = result.as_numpy("TEXT")
-                    if output.size > 0:  # checking if the numpy array is not empty
-                        byte_string = output[0]  # assuming the byte string is the first element in the array
-                        if isinstance(byte_string, bytes):  # checking if the extracted element is a byte string
-                            for i in byte_string.split(b"\0"):
-                                yield i.decode("utf-8")
+                    if output.size > 0: 
+                        byte_string = output[0]
+                        buffer += byte_string  # add the byte string to the buffer
+                        while b"\0" in buffer:  # while there's a null byte in the buffer
+                            message, buffer = buffer.split(b"\0", 1)  # split the buffer at the first null byte
+                            yield message.decode("utf-8")  # yield the message
 
         except InferenceServerException as error:
             print(error)
