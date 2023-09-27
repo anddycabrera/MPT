@@ -34,6 +34,7 @@ async def llmchat(
         }
         
         generator = model_client(FLAGS, chat_request.question, sampling_parameters=sampling_parameters)
+        print(type(generator))
         return StreamingResponse(generator, media_type="text/event-stream")
     
     except Exception as e:
