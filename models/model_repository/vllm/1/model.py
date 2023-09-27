@@ -114,9 +114,9 @@ class TritonPythonModel:
         Parses the output from the vLLM engine into Triton
         response.
         """
-        prompt = vllm_output.prompt
+        #prompt = vllm_output.prompt
         text_outputs = [
-            (output.text).encode("utf-8") for output in vllm_output.outputs
+            output.text for output in vllm_output.outputs
         ]
         triton_output_tensor = pb_utils.Tensor(
             "TEXT", np.asarray(text_outputs, dtype=self.output_dtype)
