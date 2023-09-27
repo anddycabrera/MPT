@@ -72,8 +72,11 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     print(f"Encountered error while processing: {error}")
                 else:
                     output = result.as_numpy("TEXT")
-                    for i in output.split(b"\0"):
-                        yield i.decode("utf-8")
+                    if output.size > 0:  # checking if the numpy array is not empty
+                        byte_string = output[0]  # assuming the byte string is the first element in the array
+                        if isinstance(byte_string, bytes):  # checking if the extracted element is a byte string
+                            for i in byte_string.split(b"\0"):
+                                yield i.decode("utf-8")
 
         except InferenceServerException as error:
             print(error)
