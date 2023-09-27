@@ -73,7 +73,8 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 else:
                     output = result.as_numpy("TEXT")
                     for i in output:
-                        print(i.decode("utf-8"))
+                        print(type(i))
+                        yield i.decode("utf-8")
 
         except InferenceServerException as error:
             print(error)

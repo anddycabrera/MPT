@@ -42,7 +42,7 @@ services:
     volumes:
       - ./models:/work
     working_dir: /work
-    shm_size: 8G
+    #shm_size: 8G
     ulimits:
       memlock: -1
       stack: 67108864
