@@ -1,6 +1,5 @@
 import json
 import queue
-
 import numpy as np
 import tritonclient.grpc.aio as grpcclient
 from tritonclient.utils import *
@@ -13,7 +12,7 @@ class UserData:
 
 def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     inputs = []
-    prompt_data = np.array([prompt.encode("utf-8")], dtype=np.object_)
+    prompt_data = np.array([prompt.encode("utf-8")], dtype=bytes)
     try:
         inputs.append(grpcclient.InferInput("PROMPT", [1], "BYTES"))
         inputs[-1].set_data_from_numpy(prompt_data)
@@ -38,7 +37,7 @@ def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     }
 
 
-async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_parameters = {"temperature": "0.1", "top_p": "0.15"}):
+async def model_client(FLAGS, prompt_text, model_name="vllm", sampling_parameters={"temperature": "0.1", "top_p": "0.15"}):
     stream = FLAGS.streaming_mode
     prompts = [prompt_text]
 
@@ -67,11 +66,6 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 stream_timeout=FLAGS.stream_timeout,
             )
             # Read response from the stream
-            # A buffer to store the rolling outputs and match against the prompt
-            buffer = ''
-            # The final output string
-            output_cleaned = ''
-
             async for response in response_iterator:
                 result, error = response
                 if error:
@@ -80,23 +74,13 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     output_array = result.as_numpy("TEXT")
                     for output_bytes in output_array:
                         # Decoding the bytes to string
-                        output_str = output_bytes.decode("utf-8", errors='ignore')
+                        output_str = output_bytes.decode("utf-8", errors="ignore")
 
-                        # Append the output to the buffer
-                        buffer += output_str
+                        # Print the response
+                        print(output_str)
 
-                        # If the buffer ends with the prompt, clear the buffer
-                        if buffer.endswith(prompt_text):
-                            buffer = ''
-
-                        # Append the buffer to the cleaned output
-                        output_cleaned += buffer
-                        buffer = ''
-
-                        # If the cleaned output has changed, print and yield
-                        if output_cleaned:
-                            print(repr(output_cleaned))
-                            yield output_cleaned
+                        # You can yield the response here if needed
+                        yield output_str
 
         except InferenceServerException as error:
             print(error)
