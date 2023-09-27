@@ -67,15 +67,36 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 stream_timeout=FLAGS.stream_timeout,
             )
             # Read response from the stream
+            # A buffer to store the rolling outputs and match against the prompt
+            buffer = ''
+            # The final output string
+            output_cleaned = ''
+
             async for response in response_iterator:
                 result, error = response
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    output = result.as_numpy("TEXT")
-                    for i in output:
-                        print(repr(i.decode("utf-8")))
-                        yield i.decode("utf-8")
+                    output_array = result.as_numpy("TEXT")
+                    for output_bytes in output_array:
+                        # Decoding the bytes to string
+                        output_str = output_bytes.decode("utf-8", errors='ignore')
+
+                        # Append the output to the buffer
+                        buffer += output_str
+
+                        # If the buffer ends with the prompt, clear the buffer
+                        if buffer.endswith(prompt_text):
+                            buffer = ''
+
+                        # Append the buffer to the cleaned output
+                        output_cleaned += buffer
+                        buffer = ''
+
+                        # If the cleaned output has changed, print and yield
+                        if output_cleaned:
+                            print(repr(output_cleaned))
+                            yield output_cleaned
 
         except InferenceServerException as error:
             print(error)
