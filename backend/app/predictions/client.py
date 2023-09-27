@@ -73,7 +73,7 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 else:
                     output = result.as_numpy("TEXT")
                     for i in output:                        
-                        results_dict[result.get_response().id].append(i)
+                        yield result.get_response().id
 
         except InferenceServerException as error:
             print(error)
