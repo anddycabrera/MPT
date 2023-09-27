@@ -1,3 +1,4 @@
+import json
 import queue
 
 import numpy as np
@@ -71,10 +72,11 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 if error:
                     print(f"Encountered error while processing: {error}")
                 else:
-                    output = result.as_numpy("TEXT")
+                    output = result#.as_numpy("TEXT")
                     for i in output:
-                        print(type(i))
-                        yield i.decode("utf-8")
+                        data = json.loads(i.decode("utf-8"))
+                        out = data["text"]
+                        yield out
 
         except InferenceServerException as error:
             print(error)
