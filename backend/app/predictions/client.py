@@ -72,11 +72,8 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     print(f"Encountered error while processing: {error}")
                 else:
                     output = result.as_numpy("TEXT")
-                    for i in output:     
-                        results_dict[result.get_response().id].append(i)                   
-                        for id in results_dict.keys():
-                            for result in results_dict[id]:
-                                yield result.decode("utf-8")
+                    for i in output:                        
+                        yield i.decode("utf-8")
 
         except InferenceServerException as error:
             print(error)
