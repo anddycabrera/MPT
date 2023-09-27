@@ -1,7 +1,7 @@
 {
-    "model":"distilgpt2",
+    "model":"gpt2",
     "disable_log_requests": "true",
-    "tokenizer": "distilgpt2"
+    "tokenizer": "gpt2"
 
 
 }
