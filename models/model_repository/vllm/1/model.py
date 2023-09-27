@@ -115,6 +115,7 @@ class TritonPythonModel:
         response.
         """
         #prompt = vllm_output.prompt
+        print(vllm_output)
         text_outputs = [
             output.text for output in vllm_output.outputs
         ]

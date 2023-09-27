@@ -71,7 +71,7 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     output = result.as_numpy("TEXT")
                     for i in output:
                         # Decoding the output and splitting at "\nb'"
-                        parts = i.decode("utf-8").split("\nb'", 1)
+                        parts = i.decode("utf-8").split("\nb'", 1).split("b'", 1)
                         
                         # Checking if there are parts after "\nb'"
                         if len(parts) > 1:
