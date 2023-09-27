@@ -12,9 +12,9 @@ class UserData:
 
 def create_request(prompt, stream, request_id, sampling_parameters, model_name):
     inputs = []
-    prompt_data = prompt.encode("utf-8")
+    prompt_data = np.array([prompt.encode("utf-8")], dtype=np.object_)
     try:
-        inputs.append(grpcclient.InferInput("PROMPT", [1], "STRING"))
+        inputs.append(grpcclient.InferInput("PROMPT", [1], "BYTES"))
         inputs[-1].set_data_from_numpy(prompt_data)
     except Exception as e:
         print(f"Encountered an error {e}")
@@ -72,7 +72,8 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                     print(f"Encountered error while processing: {error}")
                 else:
                     output = result.as_numpy("TEXT")
-                    for i in output:                        
+                    for i in output:     
+                        print(type(i))                   
                         yield i.decode("utf-8")
 
         except InferenceServerException as error:
