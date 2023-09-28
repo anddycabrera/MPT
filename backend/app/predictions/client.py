@@ -74,7 +74,7 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                         decoded_output = i.decode("utf-8")
                         
                         # Using regular expression to remove b' and \n at the start
-                        cleaned_output = decoded_output.lstrip("\\nb'")
+                        cleaned_output = decoded_output.lstrip("\n").replace("b'", "")
                         
                         # Yielding the cleaned output
                         yield cleaned_output
