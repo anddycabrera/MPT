@@ -52,8 +52,7 @@ services:
           devices:
           - driver: nvidia
             capabilities: ["gpu"]
-    stdin_open: true
-    tty: true
+
 
   # gradio-app:
   #   build:
