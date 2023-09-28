@@ -1,3 +1,3 @@
 export function Url(){
-    return "http://18.190.198.214:8003/api/v1/";
+    return "http://18.224.58.82:8003/api/v1/";
 }
