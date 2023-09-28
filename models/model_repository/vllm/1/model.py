@@ -114,20 +114,15 @@ class TritonPythonModel:
         Parses the output from the vLLM engine into Triton
         response.
         """
-        # Check if there are any outputs, return an empty response if not
-        if not vllm_output.outputs:
-            return pb_utils.InferenceResponse()
-
-        # Take only the last output.text
-        last_output_text = vllm_output.outputs[-1].text.encode("utf-8")
-        
-        # Create a tensor with only the last output text
+        #prompt = vllm_output.prompt
+        print(vllm_output)
+        text_outputs = [
+            vllm_output.outputs["text"][0]
+        ]
         triton_output_tensor = pb_utils.Tensor(
-            "TEXT", np.array([last_output_text], dtype=self.output_dtype)
+            "TEXT", np.asarray(text_outputs, dtype=self.output_dtype)
         )
-
         return pb_utils.InferenceResponse(output_tensors=[triton_output_tensor])
-
 
     async def generate(self, request):
         """
