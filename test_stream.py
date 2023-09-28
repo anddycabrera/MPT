@@ -50,7 +50,7 @@ def get_response(response: requests.Response) -> List[str]:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="tritonserver")
-    parser.add_argument("--port", type=int, default=8001)
+    parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--n", type=int, default=4)
     parser.add_argument("--prompt", type=str, default="who is albert einstein?")
     parser.add_argument("--stream", action="store_true")
