@@ -1,47 +1,77 @@
-# import json
+"""Example Python client for vllm.entrypoints.api_server"""
 
-# import requests
-
-# url = "http://localhost:8000/api/v1/openai/stream_chat"
-# message = "what is langchain stream?"
-# data = {"question": message, "session_id": "string"}
-
-# headers = {"Content-type": "application/json"}
-
-# with requests.post(url, data=json.dumps(data), headers=headers, stream=True) as r:
-#     for chunk in r.iter_content(1024):
-#         print(chunk)
-
+import argparse
+import json
+from typing import Iterable, List
 
 import requests
-import base64
 
-# Encode your text input
-text_input = "what is your name?"
-encoded_input = base64.b64encode(text_input.encode('utf-8')).decode('utf-8')
 
-# Define endpoint and headers
-url = "http://129.80.165.66:8001/v2/models/vllm/versions/1/infer"
-headers = {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer your_optional_token_if_required"
-}
+def clear_line(n: int = 1) -> None:
+    LINE_UP = '\033[1A'
+    LINE_CLEAR = '\x1b[2K'
+    for _ in range(n):
+        print(LINE_UP, end=LINE_CLEAR, flush=True)
 
-# Define your data payload
-# This structure can vary based on the model's expected input format
-data = {
-    "id": "some_unique_request_id",
-    "inputs": [
-        {
-            "name": "input_tensor_name",
-            "datatype": "BYTES",
-            "shape": [1],
-            "data": [encoded_input]
-        }
-    ]
-}
 
-# Send POST request
-response = requests.post(url, headers=headers, json=data)
-print(response.json())
+def post_http_request(prompt: str,
+                      api_url: str,
+                      n: int = 1,
+                      stream: bool = False) -> requests.Response:
+    headers = {"User-Agent": "Test Client"}
+    pload = {
+        "prompt": prompt,
+        "n": n,
+        "use_beam_search": True,
+        "temperature": 0.0,
+        "max_tokens": 16,
+        "stream": stream,
+    }
+    response = requests.post(api_url, headers=headers, json=pload, stream=True)
+    return response
 
+
+def get_streaming_response(response: requests.Response) -> Iterable[List[str]]:
+    for chunk in response.iter_lines(chunk_size=8192,
+                                     decode_unicode=False,
+                                     delimiter=b"\0"):
+        if chunk:
+            data = json.loads(chunk.decode("utf-8"))
+            output = data["text"]
+            yield output
+
+
+def get_response(response: requests.Response) -> List[str]:
+    data = json.loads(response.content)
+    output = data["text"]
+    return output
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", type=str, default="tritonserver")
+    parser.add_argument("--port", type=int, default=8001)
+    parser.add_argument("--n", type=int, default=4)
+    parser.add_argument("--prompt", type=str, default="who is albert einstein?")
+    parser.add_argument("--stream", action="store_true")
+    args = parser.parse_args()
+    prompt = args.prompt
+    api_url = f"http://{args.host}:{args.port}/generate"
+    n = args.n
+    stream = args.stream
+
+    print(f"Prompt: {prompt!r}\n", flush=True)
+    response = post_http_request(prompt, api_url, n, stream)
+
+    if stream:
+        num_printed_lines = 0
+        for h in get_streaming_response(response):
+            clear_line(num_printed_lines)
+            num_printed_lines = 0
+            for i, line in enumerate(h):
+                num_printed_lines += 1
+                print(f"Beam candidate {i}: {line!r}", flush=True)
+    else:
+        output = get_response(response)
+        for i, line in enumerate(output):
+            print(f"Beam candidate {i}: {line!r}", flush=True)
