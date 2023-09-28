@@ -31,7 +31,7 @@ services:
     build:
       context: ./models
       dockerfile: Dockerfile
-    #command: /bin/bash -c "tritonserver --model-store ./model_repository"
+    command: sh -c "pip3 install --upgrade pip && pip3 install -r requirements.txt && python -m vllm.entrypoints.api_server"
     ipc: host
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
