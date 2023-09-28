@@ -117,10 +117,10 @@ class TritonPythonModel:
         #prompt = vllm_output.prompt
         print(vllm_output)
         text_outputs = [
-            (output.text).decode("utf-8") for output in vllm_output.outputs
+            (output.text).encode("utf-8") for output in vllm_output.outputs
         ]
         triton_output_tensor = pb_utils.Tensor(
-            "TEXT", np.asarray(text_outputs, dtype=self.output_dtype)
+            "TEXT", text_outputs.as_numpy().astype(self.output_dtype)
         )
         return pb_utils.InferenceResponse(output_tensors=[triton_output_tensor])
 
