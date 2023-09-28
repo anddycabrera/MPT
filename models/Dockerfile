@@ -8,7 +8,7 @@ RUN pip install vllm==0.1.7
 WORKDIR /work
 
 # Copy the requirements file and install the requirements
-COPY ./models/requirements.txt /work
+COPY ./requirements.txt /work
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set the entrypoint to start the application
