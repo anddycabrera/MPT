@@ -1,8 +1,0 @@
-{
-    "model":"mosaicml/mpt-7b-chat",
-    "disable_log_requests": "true",
-    "tokenizer": "EleutherAI/gpt-neox-20b",
-    "trust_remote_code": "true"
-
-
-}
