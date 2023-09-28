@@ -1,5 +1,5 @@
 import queue
-
+import re
 import numpy as np
 import tritonclient.grpc.aio as grpcclient
 from tritonclient.utils import *
@@ -70,12 +70,14 @@ async def model_client(FLAGS, prompt_text, model_name = "vllm", sampling_paramet
                 else:
                     output = result.as_numpy("TEXT")
                     for i in output:
-                        # Decoding the output and splitting at "\nb'"
-                        parts = i.decode("utf-8").split("\nb'", 1).split("b'", 1)
+                        # Decoding the output
+                        decoded_output = i.decode("utf-8")
                         
-                        # Checking if there are parts after "\nb'"
-                        if len(parts) > 1:
-                            yield parts[1]
+                        # Using regular expression to remove b' and \n at the start
+                        cleaned_output = re.sub(r"^(b'|\\n)+", "", decoded_output)
+                        
+                        # Yielding the cleaned output
+                        yield cleaned_output
 
         except InferenceServerException as error:
             print(error)
