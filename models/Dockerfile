@@ -1,15 +1,13 @@
-# Use the specified image
 FROM nvcr.io/nvidia/pytorch:22.12-py3
+RUN pip uninstall torch -y
 
-# Install the vllm package
-RUN pip install vllm==0.1.7
+WORKDIR /workspace
 
-# Set the working directory
-WORKDIR /work
+COPY /inference/vllm /workspace/inference/vllm
+WORKDIR /workspace/inference/vllm
+RUN pip install -e .
 
-# Copy the requirements file and install the requirements
-COPY ./requirements.txt /work
-RUN pip install --no-cache-dir -r requirements.txt
+ENV PYTHONPATH=/workspace/inference/vllm
 
-# Set the entrypoint to start the application
-ENTRYPOINT ["python", "-m", "vllm.entrypoints.api_server"]
+EXPOSE 8000
+CMD ["python", "-m", "vllm.entrypoints.openai.api_server", "--host", "0.0.0.0"]
